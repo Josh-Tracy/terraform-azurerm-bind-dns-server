@@ -25,5 +25,83 @@ This section contains details on configurations and settings that this module su
 
 ### Getting Started
 See the example scenario in the tests directory which contains a ready-made terraform configuration for 1 private DNS server with 1 Forward Zone configured. Aside from the prereqs, all that is required to deploy is populating your own input variable values in the terraform.tfvars.example template that is provided in the given scenario subdirectory (and removing the .example file extension).
+<p>&nbsp;</p>
+
+### Deploying the Server
+The section of code below is an example taken from the `tests/single-server/terraform.tfvars.example` file. You are required to define an existing Resource Group and Subnet ID for the VM to be put into. This module only supports prviate IP addressing at this time and one is required. Choose a hostname, admin username, and ssh public key to upload to the VM as well.
+
+```hcl
+# --- DNS Server --- #
+resource_group_name   = "prereqs-rg"
+subnet_id             = "/subscriptions/12345678-1111-aaaa-2222-abcdefg123/resourceGroups/prereqs-rg/providers/Microsoft.Network/virtualNetworks/dns-vnet/subnets/dns-subnet"
+dns_server_private_ip = "10.0.2.60"
+hostname = "binddns"
+admin_username        = "binddnsadmin"
+ssh_public_key        = "ssh-rsa AAAAB3Nzxxx= example@example"
+ssh_key_path = "/home/binddnsadmin/.ssh/authorized_keys"
+```
+### Configuring the DNS Server
+Terraform will use the `dns_custome_data.sh.tpl` script from the `templates` directory to interpolate these values into a script that will install and configure the bind9 dns service on the VM.
+>Note: At this time the module only supports providing 1 zone.
+
+You must provide:
+- CIDR ranges for the DNS to listen forrequests on.
+- Forwarders to forward quieries to.
+- A dns zone in which your host resides.
+- The first half of the users email address that owns the domain (this would be root if the email was root@example.com).
+- The FQDN of a server you want to create an A record for in this zone.
+- The IP address of the server you are creating an A record for. 
+
+```hcl
+# --- DNS Configuration --- #
+listen_on_cidrs     = ["10.0.2.0/24", "172.22.1.0/24"]
+forwarders          = ["8.8.8.8", "8.8.4.4", "168.63.129.16"]
+dns_zone            = "mydomain.com"
+soa_username        = "root"
+a_record_servername = "app.mydomain.com"
+a_record_ip_address = "10.0.2.4"
+```
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 2.99.0 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_network_interface.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface) | resource |
+| [azurerm_virtual_machine.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_machine) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_a_record_ip_address"></a> [a\_record\_ip\_address](#input\_a\_record\_ip\_address) | The IP address for the server you are creating an A record for. | `string` | n/a | yes |
+| <a name="input_a_record_servername"></a> [a\_record\_servername](#input\_a\_record\_servername) | The FQDN of a host you wish to create an A record for. | `string` | n/a | yes |
+| <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The admin username used for SSH. | `string` | `"binddnsadmin"` | no |
+| <a name="input_common_tags"></a> [common\_tags](#input\_common\_tags) | Map of common tags for taggable Azure resources. | `map(string)` | `{}` | no |
+| <a name="input_dns_server_private_ip"></a> [dns\_server\_private\_ip](#input\_dns\_server\_private\_ip) | A private IP address to assign to the DNS VM. | `string` | n/a | yes |
+| <a name="input_dns_zone"></a> [dns\_zone](#input\_dns\_zone) | The domain name of a DNS zone you wish to create records within. Example: domain.com | `string` | n/a | yes |
+| <a name="input_forwarders"></a> [forwarders](#input\_forwarders) | A list of DNS servers to forward requests to. | `list(string)` | <pre>[<br>  "8.8.8.8",<br>  "8.8.4.4",<br>  "168.63.129.16"<br>]</pre> | no |
+| <a name="input_hostname"></a> [hostname](#input\_hostname) | The hostname of the VM. | `string` | `"binddns"` | no |
+| <a name="input_listen_on_cidrs"></a> [listen\_on\_cidrs](#input\_listen\_on\_cidrs) | A list of CIDR addresses that the DNS server will listen on for requests. Requests from CIDR ranges not listed will be ignored. | `list(string)` | n/a | yes |
+| <a name="input_location"></a> [location](#input\_location) | Azure region to deploy into. | `string` | `"east us"` | no |
+| <a name="input_prefix"></a> [prefix](#input\_prefix) | Friendly name prefix for unique Azure resource naming. | `string` | `"binddns"` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of an existing resource group to deploy into. | `string` | n/a | yes |
+| <a name="input_soa_username"></a> [soa\_username](#input\_soa\_username) | The first half of the email address for the owner of this domain. An example of this would be root if the owner was root@example.com. | `string` | n/a | yes |
+| <a name="input_ssh_key_path"></a> [ssh\_key\_path](#input\_ssh\_key\_path) | The path on the VM to place the SSH public key. | `string` | `"/home/binddnsadmin/.ssh/authorized_keys"` | no |
+| <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | The public key to be placed onto the VM. | `string` | n/a | yes |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The ID of the subnet to deploy the VM into. | `string` | n/a | yes |
+
+## Outputs
+
+No outputs.
 
  
