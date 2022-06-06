@@ -5,70 +5,85 @@ variable "common_tags" {
 }
 
 variable "prefix" {
-  type    = string
-  default = "binddns"
+  description = "Friendly name prefix for unique Azure resource naming."
+  type        = string
+  default     = "binddns"
 }
 
 variable "location" {
-  type    = string
-  default = "east us"
+  description = "Azure region to deploy into."
+  type        = string
+  default     = "east us"
 }
 
 variable "resource_group_name" {
-  type = string
+  description = "The name of an existing resource group to deploy into."
+  type        = string
 }
 
 variable "subnet_id" {
-  type = string
+  description = "The ID of the subnet to deploy the VM into."
+  type        = string
 }
 
 variable "dns_server_private_ip" {
-  type = string
+  description = "A private IP address to assign to the DNS VM."
+  type        = string
 }
 
 variable "admin_username" {
-  type    = string
-  default = "binddnsadmin"
+  description = "The admin username used for SSH."
+  type        = string
+  default     = "binddnsadmin"
 }
 
 variable "ssh_public_key" {
-  type = string
+  description = "The public key to be placed onto the VM."
+  type        = string
 }
 
 variable "ssh_key_path" {
-    type = string
-    default = "/home/binddnsadmin/.ssh/authorized_keys"
+  description = "The path on the VM to place the SSH public key."
+  type        = string
+  default     = "/home/binddnsadmin/.ssh/authorized_keys"
 }
 
 variable "hostname" {
-    type = string
-    default = "binddns"
+  description = "The hostname of the VM."
+  type        = string
+  default     = "binddns"
 }
 
 #------------------------------------------------------------------------------
 # Custom Data (cloud-init) arguments
 #------------------------------------------------------------------------------
 variable "listen_on_cidrs" {
-    type = list(string)
+  description = "A list of CIDR addresses that the DNS server will listen on for requests. Requests from CIDR ranges not listed will be ignored."
+  type        = list(string)
 }
 
 variable "forwarders" {
-    type = list(string)
-    default = ["8.8.8.8", "8.8.4.4", "168.63.129.16"]
+  description = "A list of DNS servers to forward requests to."
+  type        = list(string)
+  default     = ["8.8.8.8", "8.8.4.4", "168.63.129.16"]
 }
 
 variable "dns_zone" {
-    type = string
+  description = "The domain name of a DNS zone you wish to create records within. Example: domain.com"
+  type        = string
 }
 
 variable "soa_username" {
-    type = string
+  description = "The first half of the email address for the owner of this domain. An example of this would be root if the owner was root@example.com."
+  type        = string
 }
 
 variable "a_record_servername" {
-    type = string
+  description = "The FQDN of a host you wish to create an A record for."
+  type        = string
 }
 
 variable "a_record_ip_address" {
-    type = string 
+  description = "The IP address for the server you are creating an A record for."
+  type        = string
 }

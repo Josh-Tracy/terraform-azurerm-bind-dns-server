@@ -16,6 +16,7 @@ dns_server_private_ip = "10.0.2.60"
 hostname = "binddns"
 admin_username        = "binddnsadmin"
 ssh_public_key        = "ssh-rsa AAAAB3Nzxxx= example@example"
+ssh_key_path = "/home/binddnsadmin/.ssh/authorized_keys"
 
 # --- DNS Configuration --- #
 listen_on_cidrs     = ["10.0.2.0/24", "172.22.1.0/24"]

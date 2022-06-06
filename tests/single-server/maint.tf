@@ -26,6 +26,7 @@ module "binddns" {
   dns_server_private_ip = var.dns_server_private_ip
   admin_username        = var.admin_username
   ssh_public_key        = var.ssh_public_key
+  ssh_key_path          = var.ssh_key_path
 
   # --- DNS Configuration --- #
   listen_on_cidrs     = var.listen_on_cidrs
@@ -34,6 +35,6 @@ module "binddns" {
   soa_username        = var.soa_username
   a_record_ip_address = var.a_record_ip_address
   a_record_servername = var.a_record_servername
-  hostname = var.hostname
+  hostname            = var.hostname
 
 }
