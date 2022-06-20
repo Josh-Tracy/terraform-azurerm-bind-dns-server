@@ -54,6 +54,12 @@ variable "hostname" {
   default     = "binddns"
 }
 
+variable "forward_zone_enabled" {
+  description = "Whether or not to add a forward zone to the named.conf.local file"
+  type        = bool
+  default     = false
+
+}
 #------------------------------------------------------------------------------
 # Custom Data (cloud-init) arguments
 #------------------------------------------------------------------------------
@@ -86,4 +92,16 @@ variable "a_record_servername" {
 variable "a_record_ip_address" {
   description = "The IP address for the server you are creating an A record for."
   type        = string
+}
+
+variable "forward_zone" {
+  description = "Domain name of the zone to forward requests for."
+  type        = string
+  default     = null
+}
+
+variable "forward_zone_ip" {
+  description = "IP of the DNS server to forward requests that match the forward zone domain to."
+  type        = string
+  default     = null
 }

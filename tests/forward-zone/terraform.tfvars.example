@@ -25,3 +25,6 @@ dns_zone            = "mydomain.com"
 soa_username        = "root"
 a_record_servername = "app.mydomain.com"
 a_record_ip_address = "10.0.2.4"
+forward_zone = "postgres.database.azure.com"
+forward_zone_ip = "168.63.129.16"
+forward_zone_enabled = true

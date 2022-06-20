@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.99.0"
+      version = "~> 3.9.0"
     }
   }
 }
@@ -11,6 +11,7 @@ provider "azurerm" {
   environment = "public"
   features {}
 }
+
 
 module "binddns" {
   source = "../.."
@@ -36,5 +37,4 @@ module "binddns" {
   a_record_ip_address = var.a_record_ip_address
   a_record_servername = var.a_record_servername
   hostname            = var.hostname
-
 }

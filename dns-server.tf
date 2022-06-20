@@ -27,6 +27,8 @@ locals {
     dns_server_private_ip = var.dns_server_private_ip
     a_record_servername   = var.a_record_servername
     a_record_ip_address   = var.a_record_ip_address
+    forward_zone          = var.forward_zone
+    forward_zone_ip       = var.forward_zone_ip
   }
 }
 
@@ -56,7 +58,7 @@ resource "azurerm_virtual_machine" "main" {
   os_profile {
     computer_name  = var.hostname
     admin_username = var.admin_username
-    custom_data    = base64encode(templatefile("${path.module}/templates/dns_custom_data.sh.tpl", local.custom_data_args))
+    custom_data    = var.forward_zone_enabled == true ? base64encode(templatefile("${path.module}/templates/dns_fwd_zone_custom_data.sh.tpl", local.custom_data_args)) : base64encode(templatefile("${path.module}/templates/dns_custom_data.sh.tpl", local.custom_data_args))
   }
   os_profile_linux_config {
     disable_password_authentication = true

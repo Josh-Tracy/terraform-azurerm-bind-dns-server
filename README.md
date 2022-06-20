@@ -11,13 +11,7 @@ When you are using Azure-provided name resolution, Azure Dynamic Host Configurat
 
 ## Prerequisites
 - Routing may need to be configured based on the location of the DNS server relative to the VNET and virtual machines. This varies greatly from organization to organization.
-<p>&nbsp;</p>
-
-## Configuring Azure
-To use a custom DNS server for a VNET on Azure, you must specify in the VNET settings the custom DNS server IP addresses:
-
-- Navigate to the Settings `DNS server` tab and select "Custom". 
-- Add the IP address of the DNS server and save.
+- The DNS server must have the ability to download required packages from the internet. 
 <p>&nbsp;</p>
 
 ## Usage
@@ -32,7 +26,7 @@ The section of code below is an example taken from the `tests/single-server/terr
 
 ```hcl
 # --- DNS Server --- #
-resource_group_name   = "prereqs-rg"
+resource_group_name   = "prereqs-rg"    
 subnet_id             = "/subscriptions/12345678-1111-aaaa-2222-abcdefg123/resourceGroups/prereqs-rg/providers/Microsoft.Network/virtualNetworks/dns-vnet/subnets/dns-subnet"
 dns_server_private_ip = "10.0.2.60"
 hostname = "binddns"
@@ -41,32 +35,40 @@ ssh_public_key        = "ssh-rsa AAAAB3Nzxxx= example@example"
 ssh_key_path = "/home/binddnsadmin/.ssh/authorized_keys"
 ```
 ### Configuring the DNS Server
-Terraform will use the `dns_custome_data.sh.tpl` script from the `templates` directory to interpolate these values into a script that will install and configure the bind9 dns service on the VM.
+Terraform will use the `dns_custome_data.sh.tpl` or `dns_fwd_zone_custom_data.sh.tpl` script ( depending on if you set `forward_zone_enabled = true` or not ) from the `templates` directory to interpolate these values into a script that will install and configure the bind9 dns service on the VM.
 >Note: At this time the module only supports providing 1 zone.
 
-You must provide:
-- CIDR ranges for the DNS to listen forrequests on.
-- Forwarders to forward quieries to.
-- A dns zone in which your host resides.
-- The first half of the users email address that owns the domain (this would be root if the email was root@example.com).
-- The FQDN of a server you want to create an A record for in this zone.
-- The IP address of the server you are creating an A record for. 
 
 ```hcl
 # --- DNS Configuration --- #
-listen_on_cidrs     = ["10.0.2.0/24", "172.22.1.0/24"]
-forwarders          = ["8.8.8.8", "8.8.4.4", "168.63.129.16"]
-dns_zone            = "mydomain.com"
-soa_username        = "root"
-a_record_servername = "app.mydomain.com"
+listen_on_cidrs     = ["10.0.2.0/24", "172.22.1.0/24"]          
+forwarders          = ["8.8.8.8", "8.8.4.4", "168.63.129.16"]   
+dns_zone            = "mydomain.com"                            
+soa_username        = "root"                                    
+a_record_servername = "app.mydomain.com"                       
 a_record_ip_address = "10.0.2.4"
+forward_zone        = "forwardzone-domain.com
+forward_zone_ip     = "168.63.129.16"
+forward_zone_enabled = true                            
 ```
+
+### Configuring Azure
+To use a custom DNS server for a VNET on Azure, you must specify in the VNET settings the custom DNS server IP addresses:
+
+- Navigate to the Settings `DNS server` tab and select "Custom". 
+- Add the IP address of the DNS server and save.
+>Note: If you change the VNET DNS server to a custom one and then try to deploy the DNS server into that VNET, it will fail because it cannot resolve addresses required to download bind9. 
+<p>&nbsp;</p>
+
+## Verifying the Deployment
+- A client deployed into the VNET that you have configured with the custom DNS server should be able to `dig @<dns_server_private_ip> <fqdn_of_a_record_host>
+- Alternatively, depending on how you setup your records, a simple `nslookup` of an A record within your DNS server should resolve.
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 2.99.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.9.0 |
 
 ## Modules
 
