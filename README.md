@@ -58,10 +58,18 @@ To use a custom DNS server for a VNET on Azure, you must specify in the VNET set
 - Navigate to the Settings `DNS server` tab and select "Custom". 
 - Add the IP address of the DNS server and save.
 >Note: If you change the VNET DNS server to a custom one and then try to deploy the DNS server into that VNET, it will fail because it cannot resolve addresses required to download bind9. 
+- If you are using an Azure private DNS zone, you must create a forward zone on the DNS server with the name of the private zone that forwards requests to the Azure DNS IP `168.63.129.16`. See below for an example:
+```hcl
+zone "postgres.database.azure.com" {
+type forward;
+forward only;
+forwarders { 168.63.129.16; };
+};
+```
 <p>&nbsp;</p>
 
 ## Verifying the Deployment
-- A client deployed into the VNET that you have configured with the custom DNS server should be able to `dig @<dns_server_private_ip> <fqdn_of_a_record_host>
+- A client deployed into the VNET that you have configured with the custom DNS server should be able to `dig @<dns_server_private_ip> <fqdn_of_a_record_host>`
 - Alternatively, depending on how you setup your records, a simple `nslookup` of an A record within your DNS server should resolve.
 
 ## Providers
